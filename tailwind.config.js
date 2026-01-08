@@ -1,5 +1,8 @@
 export default {
-  content: ['./index.html', './about.html', './src/**/*.{ts,tsx}'],
+  content: [
+    './public/templates/**/*.html',
+    './src/**/*.{ts,tsx}'
+  ],
   theme: {
     extend: {
       colors: {

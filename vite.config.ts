@@ -34,8 +34,8 @@ export default defineConfig(({ mode }) => {
       outDir: 'dist',
       rollupOptions: {
         input: {
-          index: page('index.html'),
-          about: page('about.html')
+          index: page('public/templates/index.html'),
+          about: page('public/templates/about.html')
         },
         output: {
           manualChunks(id: string) {

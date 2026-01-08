@@ -45,7 +45,9 @@ export function applySeo(seo: SEODescriptor, doc = document) {
   doc.title = seo.title;
 
   META_TAGS.forEach((tag) => {
-    const value = tag === 'keywords' ? seo.keywords?.join(', ') : (seo as any)[tag];
+    const value = tag === 'keywords'
+      ? seo.keywords?.join(', ')
+      : seo[tag as keyof Pick<SEODescriptor, 'description'>];
     if (!value) return;
     const meta = createMetaElement(tag, value, doc);
     meta.dataset.dynamic = 'true';

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
-import Desktop from './Desktop';
-import Mobile from './Mobile';
+import PCPage from './pc/Index';
+import MobilePage from './mobile/Index';
 import { useResponsive } from '@/hooks/useResponsive';
 import { applySeo, SEO_DATA } from '@/utils/seo';
 
@@ -13,7 +13,7 @@ const IndexApp = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
-      {device === 'desktop' ? <Desktop /> : <Mobile />}
+      {device === 'desktop' ? <PCPage /> : <MobilePage />}
     </div>
   );
 };
