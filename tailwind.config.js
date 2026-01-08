@@ -1,7 +1,6 @@
 export default {
   content: [
-    './public/templates/**/*.html',
-    './src/**/*.{ts,tsx}'
+    './src/**/*.{html,ts,tsx}'
   ],
   theme: {
     extend: {

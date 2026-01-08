@@ -71,7 +71,7 @@
 
 - 使用 Vite `rollupOptions.input` 配置多入口
 - 每个页面独立打包，支持独立部署
-- HTML 模板统一管理（`public/templates/`）
+- HTML 模板与页面组件高内聚（`src/pages/*/index.html`）
 
 ### 2. SEO 优化
 
@@ -153,14 +153,13 @@ const App = () => {
 
 ```
 website/
-├── public/
-│   └── templates/               # 📄 HTML 模板集中管理
-│       ├── index.html          # 首页 HTML
-│       └── about.html          # 关于页 HTML
+├── public/                      # 静态资源目录
+│   └── favicon.svg
 │
 ├── src/
 │   ├── pages/                   # 📱 页面目录
 │   │   ├── index/              # 首页
+│   │   │   ├── index.html      # 📄 首页 HTML 模板
 │   │   │   ├── main.tsx        # 页面入口
 │   │   │   ├── App.tsx         # 根组件（设备切换）
 │   │   │   ├── pc/             # 💻 PC 端组件
@@ -169,6 +168,7 @@ website/
 │   │   │       └── Index.tsx
 │   │   │
 │   │   └── about/              # 关于页（同上结构）
+│   │       ├── index.html
 │   │       ├── main.tsx
 │   │       ├── App.tsx
 │   │       ├── pc/Index.tsx
@@ -257,24 +257,25 @@ npm run preview
 
 ### 添加新页面
 
-#### 步骤 1：创建 HTML 模板
-
-在 `public/templates/` 创建新的 HTML 文件：
+#### 步骤 1：创建页面目录
 
 ```bash
-touch public/templates/products.html
+mkdir -p src/pages/products/pc src/pages/products/mobile
 ```
 
-内容参考现有页面：
+#### 步骤 2：创建 HTML 模板
+
+在页面目录下创建 `index.html`：
 
 ```html
+<!-- src/pages/products/index.html -->
 <!doctype html>
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <!-- SEO tags will be injected at build time -->
+    <title>Products - React MPA SEO</title>
   </head>
   <body>
     <div id="root"></div>
@@ -283,12 +284,9 @@ touch public/templates/products.html
 </html>
 ```
 
-#### 步骤 2：创建页面组件
+#### 步骤 3：创建页面组件
 
 ```bash
-# 创建目录结构
-mkdir -p src/pages/products/pc src/pages/products/mobile
-
 # 创建文件
 touch src/pages/products/main.tsx
 touch src/pages/products/App.tsx
@@ -338,21 +336,21 @@ const ProductsApp = () => {
 export default ProductsApp;
 ```
 
-#### 步骤 3：更新 Vite 配置
+#### 步骤 4：更新 Vite 配置
 
 在 `vite.config.ts` 中添加新入口：
 
 ```typescript
 rollupOptions: {
   input: {
-    index: page('public/templates/index.html'),
-    about: page('public/templates/about.html'),
-    products: page('public/templates/products.html'), // 新增
+    index: page('index'),
+    about: page('about'),
+    products: page('products'), // 新增
   }
 }
 ```
 
-#### 步骤 4：添加 SEO 配置
+#### 步骤 5：添加 SEO 配置
 
 在 `src/utils/seo.ts` 中添加：
 
@@ -368,7 +366,7 @@ export const SEO_DATA: Record<string, SEODescriptor> = {
 };
 ```
 
-#### 步骤 5：开发页面内容
+#### 步骤 6：开发页面内容
 
 在 `pc/Index.tsx` 和 `mobile/Index.tsx` 中实现具体 UI。
 

@@ -4,14 +4,13 @@
 
 ```
 website/
-├── public/
-│   └── templates/               # 📄 HTML 模板统一管理
-│       ├── index.html          # 首页 HTML
-│       └── about.html          # 关于页 HTML
+├── public/                      # 静态资源目录
+│   └── favicon.svg
 │
 ├── src/
 │   ├── pages/                   # 📱 页面目录
 │   │   ├── index/              # 首页
+│   │   │   ├── index.html      # 📄 首页 HTML 模板
 │   │   │   ├── main.tsx        # 页面入口
 │   │   │   ├── App.tsx         # 根组件 (负责 PC/Mobile 切换)
 │   │   │   ├── pc/             # 💻 PC 端组件
@@ -20,6 +19,7 @@ website/
 │   │   │       └── Index.tsx   # 移动端首页
 │   │   │
 │   │   └── about/              # 关于页
+│   │       ├── index.html      # 📄 关于页 HTML 模板
 │   │       ├── main.tsx
 │   │       ├── App.tsx
 │   │       ├── pc/
@@ -55,10 +55,10 @@ website/
 
 ## 🎯 设计理念
 
-### 1. HTML 模板集中管理
-所有 HTML 模板放在 `public/templates/` 目录，便于：
-- 📝 快速查找和编辑页面文案
-- 🔍 SEO 兜底内容管理
+### 1. HTML 模板与页面组件同目录管理
+所有页面的 HTML 模板放在对应页面目录下（`src/pages/[pagename]/index.html`），便于：
+- 📝 页面相关文件高内聚，易于维护
+- 🔍 快速定位页面入口和配置
 - 📋 运营/文案人员协作
 
 ### 2. PC/Mobile 组件明确分离
@@ -74,20 +74,37 @@ website/
 
 ## 📝 添加新页面
 
-### 1. 创建 HTML 模板
-```bash
-# 在 public/templates/ 创建新的 HTML 文件
-touch public/templates/products.html
-```
-
-### 2. 创建页面目录
+### 1. 创建页面目录
 ```bash
 mkdir -p src/pages/products/pc src/pages/products/mobile
+```
+
+### 2. 创建 HTML 模板
+在页面目录下创建 `index.html`：
+
+```bash
+# 创建 src/pages/products/index.html
+cat > src/pages/products/index.html << 'EOF'
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>Products - React MPA SEO</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/pages/products/main.tsx"></script>
+  </body>
+</html>
+EOF
 ```
 
 ### 3. 创建组件文件
 ```
 src/pages/products/
+├── index.html         # HTML 模板
 ├── main.tsx          # 复制其他页面的 main.tsx
 ├── App.tsx           # 复制其他页面的 App.tsx
 ├── pc/
@@ -100,9 +117,9 @@ src/pages/products/
 ```typescript
 // vite.config.ts
 input: {
-  index: page('public/templates/index.html'),
-  about: page('public/templates/about.html'),
-  products: page('public/templates/products.html'), // 新增
+  index: page('index'),
+  about: page('about'),
+  products: page('products'), // 新增
 }
 ```
 
@@ -123,7 +140,7 @@ export const SEO_DATA: Record<string, SEODescriptor> = {
 
 | 要找什么 | 去哪里找 |
 |---------|---------|
-| HTML 模板/文案 | `public/templates/*.html` |
+| HTML 模板/文案 | `src/pages/*/index.html` |
 | PC 端页面 | `src/pages/*/pc/Index.tsx` |
 | 移动端页面 | `src/pages/*/mobile/Index.tsx` |
 | 响应式逻辑 | `src/pages/*/App.tsx` |
@@ -170,29 +187,30 @@ src/components/
 
 ## 🚀 开发流程
 
-1. **查看/修改 HTML 模板**：`public/templates/`
+1. **创建/修改 HTML 模板**：编辑 `src/pages/*/index.html`
 2. **开发 PC 端**：编辑 `src/pages/*/pc/Index.tsx`
 3. **开发移动端**：编辑 `src/pages/*/mobile/Index.tsx`
 4. **测试切换**：调整浏览器窗口宽度，观察组件切换
 5. **SEO 配置**：在 `src/utils/seo.ts` 中配置
 
-## 📊 与旧结构对比
+## 📊 新旧结构对比
 
-### 旧结构（混乱）
+### 优化前（问题）
 ```
-❌ index.html (根目录)
-❌ about.html (根目录)
-❌ src/pages/index/Desktop.tsx (PC/Mobile 混在一起)
-❌ src/pages/index/Mobile.tsx
+❌ public/templates/index.html (构建后会被复制到 dist/templates/)
+❌ public/templates/about.html (造成冗余文件)
 ```
 
-### 新结构（清晰）
+### 优化后（解决方案）
 ```
-✅ public/templates/index.html (集中管理)
-✅ public/templates/about.html
-✅ src/pages/index/pc/Index.tsx (明确分离)
-✅ src/pages/index/mobile/Index.tsx
+✅ src/pages/index/index.html (与页面组件高内聚)
+✅ src/pages/about/index.html (构建时输出到 dist/index.html)
 ```
+
+**优势**：
+- ✅ 页面相关文件集中在一个目录，高内聚
+- ✅ 构建后不会产生多余的 templates 目录
+- ✅ 通过自定义 Vite 插件，HTML 文件输出到 dist 根目录
 
 ## 🎓 总结
 

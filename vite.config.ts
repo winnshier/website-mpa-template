@@ -1,9 +1,42 @@
-import { resolve } from 'node:path';
+import { basename, dirname, resolve } from 'node:path';
 import { defineConfig, loadEnv, splitVendorChunkPlugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import legacy from '@vitejs/plugin-legacy';
 
-const page = (file: string) => resolve(__dirname, file);
+const toFlatHtmlName = (fileName: string) => {
+  const normalized = fileName.replace(/\\/g, '/');
+  if (normalized.endsWith('/index.html')) {
+    const parentDir = basename(dirname(normalized));
+    if (parentDir && parentDir !== 'index') {
+      return `${parentDir}.html`;
+    }
+  }
+  return basename(normalized);
+};
+
+const flattenHtmlOutput = () => ({
+  name: 'flatten-html-output',
+  apply: 'build' as const,
+  enforce: 'post' as const,
+  generateBundle(_: unknown, bundle: Record<string, { type: string; fileName: string }>) {
+    const htmlEntries = Object.entries(bundle).filter(
+      ([name, chunk]) => chunk.type === 'asset' && name.endsWith('.html')
+    );
+
+    for (const [originalName, chunk] of htmlEntries) {
+      const flatName = toFlatHtmlName(originalName);
+      if (flatName === originalName) continue;
+      if (bundle[flatName]) {
+        throw new Error(`Duplicate HTML output filename detected: ${flatName}`);
+      }
+      chunk.fileName = flatName;
+      bundle[flatName] = chunk;
+      delete bundle[originalName];
+    }
+  }
+});
+
+const page = (name: string) => resolve(__dirname, `src/pages/${name}/index.html`);
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
@@ -16,7 +49,8 @@ export default defineConfig(({ mode }) => {
         renderLegacyChunks: true,
         additionalLegacyPolyfills: ['regenerator-runtime/runtime']
       }),
-      splitVendorChunkPlugin()
+      splitVendorChunkPlugin(),
+      flattenHtmlOutput()
     ],
     resolve: {
       alias: {
@@ -34,8 +68,8 @@ export default defineConfig(({ mode }) => {
       outDir: 'dist',
       rollupOptions: {
         input: {
-          index: page('public/templates/index.html'),
-          about: page('public/templates/about.html')
+          index: page('index'),
+          about: page('about')
         },
         output: {
           manualChunks(id: string) {
