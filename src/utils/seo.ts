@@ -25,6 +25,25 @@ export const SEO_DATA: Record<string, SEODescriptor> = {
     title: 'React MPA · 关于我们',
     description: '了解团队愿景与技术选型,验证多页面 SEO 能力。',
     canonicalUrl: 'https://example.com/about'
+  },
+  tech: {
+    ...DEFAULT_SEO,
+    title: 'React MPA · 技术亮点',
+    description: '沉浸式滚动、视差与模块化动画方案的演示, 类似苹果官网展示方式。',
+    canonicalUrl: 'https://example.com/tech',
+    keywords: ['react', 'framer-motion', 'scrollytelling', 'parallax', 'apple-style'],
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@type': 'TechArticle',
+      headline: 'React MPA 技术亮点',
+      about: ['Framer Motion', 'Fullpage Scroll', 'Responsive Architecture'],
+      author: {
+        '@type': 'Organization',
+        name: 'React MPA Studio'
+      },
+      datePublished: '2024-01-01',
+      description: '沉浸式滚动、视差与模块化动画方案的演示'
+    }
   }
 };
 
